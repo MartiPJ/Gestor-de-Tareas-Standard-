@@ -11,9 +11,9 @@
       <div class="header-date">{{ today }}</div>
     </div>
 
-    <!-- Quick stats -->
+    <!-- Quick stats (clickeables, navegan a su sección) -->
     <div class="quick-stats">
-      <div class="qs-card" v-for="s in quickStats" :key="s.label">
+      <RouterLink v-for="s in quickStats" :key="s.label" :to="s.to" class="qs-card">
         <div class="qs-icon" :style="{ color: s.color }">{{ s.icon }}</div>
         <div class="qs-data">
           <span class="qs-value">{{ s.value }}</span>
@@ -22,7 +22,16 @@
         <div class="qs-bar">
           <div class="qs-bar-fill" :style="{ width: s.pct + '%', background: s.color }"></div>
         </div>
-      </div>
+        <span class="qs-arrow">→</span>
+      </RouterLink>
+    </div>
+
+    <!-- Accesos rápidos -->
+    <div class="shortcuts">
+      <RouterLink v-for="link in shortcutLinks" :key="link.to" :to="link.to" class="shortcut-btn">
+        <span class="shortcut-icon">{{ link.icon }}</span>
+        {{ link.label }}
+      </RouterLink>
     </div>
 
     <div class="dashboard-grid">
@@ -31,18 +40,20 @@
         <HealthMonitor :tareas="tareas" :proyectos="proyectos" />
       </div>
 
-      <!-- Recent tasks + My tasks -->
+      <!-- Tareas recientes -->
       <div class="col-right">
-        <!-- Filter: mis tareas -->
         <div class="section-header">
-          <span class="section-title">Mis Tareas</span>
-          <button
-            class="filter-toggle"
-            :class="{ active: filterMine }"
-            @click="filterMine = !filterMine"
-          >
-            {{ filterMine ? '◉ Solo mías' : '◎ Todas' }}
-          </button>
+          <span class="section-title">Tareas recientes</span>
+          <div class="section-actions">
+            <button
+              class="filter-toggle"
+              :class="{ active: filterMine }"
+              @click="filterMine = !filterMine"
+            >
+              {{ filterMine ? '◉ Solo mías' : '◎ Todas' }}
+            </button>
+            <RouterLink to="/tareas" class="ver-todas">Ver todas →</RouterLink>
+          </div>
         </div>
 
         <div class="loading-wrap" v-if="tareasStore.loading">
@@ -68,6 +79,7 @@
 
           <div class="empty-state" v-if="!filteredTareas.length">
             <span>Sin tareas registradas</span>
+            <RouterLink to="/tareas" class="empty-link">Crear primera tarea →</RouterLink>
           </div>
         </div>
       </div>
@@ -77,6 +89,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
 import { useTareasStore } from '@/stores/tareaStore'
 import { useProyectosStore } from '@/stores/proyectosStore'
@@ -116,13 +129,14 @@ const quickStats = computed(() => {
   ).length
   const proyectosTotal = proyectos.value.length
   return [
-    { label: 'Tareas totales', value: total, icon: '☑', color: '#e8e8e0', pct: 100 },
+    { label: 'Tareas totales', value: total, icon: '☑', color: '#e8e8e0', pct: 100, to: '/tareas' },
     {
       label: 'Completadas',
       value: completadas,
       icon: '✓',
       color: '#52c97e',
       pct: total ? (completadas / total) * 100 : 0,
+      to: '/tareas',
     },
     {
       label: 'Pendientes',
@@ -130,13 +144,28 @@ const quickStats = computed(() => {
       icon: '◷',
       color: '#f5a623',
       pct: total ? (pendientes / total) * 100 : 0,
+      to: '/tareas',
     },
-    { label: 'Proyectos', value: proyectosTotal, icon: '⬡', color: '#4e9af5', pct: 100 },
+    {
+      label: 'Proyectos',
+      value: proyectosTotal,
+      icon: '⬡',
+      color: '#4e9af5',
+      pct: 100,
+      to: '/proyectos',
+    },
   ]
 })
 
+const shortcutLinks = [
+  { to: '/tareas', icon: '☑', label: 'Tareas' },
+  { to: '/proyectos', icon: '⬡', label: 'Proyectos' },
+  { to: '/usuarios', icon: '◎', label: 'Equipo' },
+  { to: '/catalogo', icon: '⊞', label: 'Estados' },
+]
+
 const filteredTareas = computed(() => {
-  let list = [...tareas.value].slice(0, 10)
+  let list = [...tareas.value].slice(0, 8)
   if (filterMine.value && auth.user) {
     list = list.filter((t) => t.assignedTo?.id === auth.user!.id)
   }
@@ -149,8 +178,6 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
-
 * {
   box-sizing: border-box;
 }
@@ -163,6 +190,7 @@ onMounted(async () => {
   background: #0d0d0f;
 }
 
+/* ── Header ── */
 .page-header {
   display: flex;
   align-items: flex-start;
@@ -183,7 +211,6 @@ onMounted(async () => {
   color: #555;
   margin-top: 4px;
 }
-
 .page-sub strong {
   color: #f5a623;
   font-weight: 600;
@@ -197,11 +224,12 @@ onMounted(async () => {
   padding-top: 4px;
 }
 
+/* ── Quick stats ── */
 .quick-stats {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 14px;
-  margin-bottom: 28px;
+  margin-bottom: 14px;
 }
 
 .qs-card {
@@ -214,6 +242,14 @@ onMounted(async () => {
   gap: 8px;
   position: relative;
   overflow: hidden;
+  text-decoration: none;
+  transition:
+    border-color 0.15s,
+    transform 0.15s;
+}
+.qs-card:hover {
+  border-color: #2a2a34;
+  transform: translateY(-2px);
 }
 
 .qs-icon {
@@ -249,13 +285,61 @@ onMounted(async () => {
   overflow: hidden;
   margin-top: 4px;
 }
-
 .qs-bar-fill {
   height: 100%;
   border-radius: 2px;
   transition: width 0.8s ease;
 }
 
+.qs-arrow {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  font-size: 13px;
+  color: #2a2a34;
+  transition:
+    color 0.15s,
+    transform 0.15s;
+}
+.qs-card:hover .qs-arrow {
+  color: #888;
+  transform: translateX(3px);
+}
+
+/* ── Shortcuts ── */
+.shortcuts {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.shortcut-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #2a2a34;
+  border-radius: 20px;
+  padding: 6px 16px;
+  color: #666;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  background: none;
+  transition: all 0.15s;
+}
+.shortcut-btn:hover {
+  border-color: #f5a623;
+  color: #f5a623;
+  background: rgba(245, 166, 35, 0.05);
+}
+
+.shortcut-icon {
+  font-size: 14px;
+}
+
+/* ── Grid ── */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
@@ -270,6 +354,7 @@ onMounted(async () => {
   gap: 14px;
 }
 
+/* ── Section header ── */
 .section-header {
   display: flex;
   align-items: center;
@@ -283,6 +368,12 @@ onMounted(async () => {
   color: #555;
   letter-spacing: 1px;
   text-transform: uppercase;
+}
+
+.section-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .filter-toggle {
@@ -305,6 +396,18 @@ onMounted(async () => {
   color: #aaa;
 }
 
+.ver-todas {
+  font-size: 12px;
+  color: #555;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
+}
+.ver-todas:hover {
+  color: #f5a623;
+}
+
+/* ── Task list ── */
 .loading-wrap {
   display: flex;
   justify-content: center;
@@ -319,7 +422,6 @@ onMounted(async () => {
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
 }
-
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -390,9 +492,23 @@ onMounted(async () => {
   background: #111114;
   border: 1px dashed #2a2a34;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
 }
 
-/* Task list transition */
+.empty-link {
+  font-size: 13px;
+  color: #f5a623;
+  text-decoration: none;
+  font-weight: 500;
+}
+.empty-link:hover {
+  text-decoration: underline;
+}
+
+/* Transitions */
 .task-enter-active,
 .task-leave-active {
   transition: all 0.2s ease;
