@@ -1,5 +1,7 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { BeforeInsert, Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import * as bcrypt from 'bcrypt'
+import { Tarea } from "src/tareas/entities/tarea.entity";
+
 
 export enum EstadoRol {
     ADMIN = 'admin',
@@ -26,7 +28,16 @@ export class Usuario {
     role: EstadoRol;
 
     @Column({type:'varchar', default:''})
-        password:string;
+    password:string;
+
+
+    // Relación: Un usuario puede crear muchas tareas
+    @OneToMany(() => Tarea, (tarea) => tarea.createdBy)
+    tareasCreadas: Tarea[];
+
+    // Relación: Un usuario puede tener muchas tareas asignadas
+    @OneToMany(() => Tarea, (tarea) => tarea.assignedTo)
+    tareasAsignadas: Tarea[];
 
     @BeforeInsert()
     async hashPassword() {

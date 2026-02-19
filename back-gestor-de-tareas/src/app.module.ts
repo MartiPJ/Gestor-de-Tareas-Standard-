@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsuarioModule } from './usuario/usuario.module';
 import { ProyectoModule } from './proyecto/proyecto.module';
+import { CatalogoModule } from './catalgo/catalgo.module';
+import { TareasModule } from './tareas/tareas.module';
 import * as joi from 'joi';
 
 @Module({
@@ -31,7 +33,9 @@ import * as joi from 'joi';
       synchronize: true, // solo en desarrollo
     }),
     UsuarioModule,
-    ProyectoModule,  
+    ProyectoModule,
+    CatalogoModule,
+    TareasModule,  
     
   ],
   controllers: [AppController],
