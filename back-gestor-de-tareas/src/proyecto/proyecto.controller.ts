@@ -4,7 +4,7 @@ import { CreateProyectoDto } from './dto/create-proyecto.dto';
 import { UpdateProyectoDto } from './dto/update-proyecto.dto';
 import { JwtGuard } from 'src/auth/jwt.guard';
 
-@Controller('proyecto')
+@Controller('api/proyecto')
 @UseGuards(JwtGuard)
 export class ProyectoController {
   constructor(private readonly proyectoService: ProyectoService) {}

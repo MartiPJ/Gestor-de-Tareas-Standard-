@@ -4,7 +4,7 @@ import { CreateCatalogoDto } from './dto/create-catalgo.dto';
 import { UpdateCatalogoDto } from './dto/update-catalgo.dto';
 import { JwtGuard } from 'src/auth/jwt.guard';
 
-@Controller('catalogo')
+@Controller('api/catalogo')
 @UseGuards(JwtGuard)
 export class CatalogoController {
   constructor(private readonly catalogoService: CatalogoService) {}

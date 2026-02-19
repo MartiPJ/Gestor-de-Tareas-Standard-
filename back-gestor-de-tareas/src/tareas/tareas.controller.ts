@@ -4,7 +4,7 @@ import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
 import { JwtGuard } from 'src/auth/jwt.guard';
 
-@Controller('tareas')
+@Controller('api/tareas')
 @UseGuards(JwtGuard)
 export class TareasController {
   constructor(private readonly tareasService: TareasService) {}
