@@ -8,6 +8,7 @@ import { ProyectoModule } from './proyecto/proyecto.module';
 import { CatalogoModule } from './catalgo/catalgo.module';
 import { TareasModule } from './tareas/tareas.module';
 import * as joi from 'joi';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import * as joi from 'joi';
     UsuarioModule,
     ProyectoModule,
     CatalogoModule,
-    TareasModule,  
+    TareasModule,
+    AuthModule  
     
   ],
   controllers: [AppController],

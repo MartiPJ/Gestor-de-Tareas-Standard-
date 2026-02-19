@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { TareasService } from './tareas.service';
 import { CreateTareaDto } from './dto/create-tarea.dto';
 import { UpdateTareaDto } from './dto/update-tarea.dto';
+import { JwtGuard } from 'src/auth/jwt.guard';
 
 @Controller('tareas')
+@UseGuards(JwtGuard)
 export class TareasController {
   constructor(private readonly tareasService: TareasService) {}
 

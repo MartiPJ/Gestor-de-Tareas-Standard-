@@ -37,6 +37,12 @@ export class UsuarioService {
     });
   }
 
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return this.usuarioRepository.findOne({
+      where: { email }
+    });
+  }
+
 
   async update(id_usuario: string, updateUsuario: UpdateUsuarioDto) {
     const usuario = await this.findOne(id_usuario);
